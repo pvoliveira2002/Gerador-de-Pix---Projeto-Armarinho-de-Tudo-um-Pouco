@@ -1,0 +1,54 @@
+import { normalizeKey, onlyDigits } from './normalize.js';
+
+function repeated(value) { return /^(\d)\1+$/.test(value); }
+
+export function isValidCpf(value) {
+  const cpf = onlyDigits(value);
+  if (cpf.length !== 11 || repeated(cpf)) return false;
+  for (let digit = 9; digit < 11; digit += 1) {
+    let sum = 0;
+    for (let i = 0; i < digit; i += 1) sum += Number(cpf[i]) * (digit + 1 - i);
+    const check = ((sum * 10) % 11) % 10;
+    if (check !== Number(cpf[digit])) return false;
+  }
+  return true;
+}
+
+export function isValidCnpj(value) {
+  const cnpj = onlyDigits(value);
+  if (cnpj.length !== 14 || repeated(cnpj)) return false;
+  const calc = (base) => {
+    let weight = base.length - 7;
+    const sum = [...base].reduce((total, n) => {
+      const result = total + Number(n) * weight--;
+      if (weight < 2) weight = 9;
+      return result;
+    }, 0);
+    const mod = sum % 11;
+    return mod < 2 ? 0 : 11 - mod;
+  };
+  return calc(cnpj.slice(0, 12)) === Number(cnpj[12]) && calc(cnpj.slice(0, 13)) === Number(cnpj[13]);
+}
+
+export function validateKey(type, value) {
+  const key = normalizeKey(type, value);
+  if (type === 'cpf') return isValidCpf(key);
+  if (type === 'cnpj') return isValidCnpj(key);
+  if (type === 'phone') return /^\+55\d{10,11}$/.test(key);
+  if (type === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key) && key.length <= 77;
+  if (type === 'random') return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key);
+  return false;
+}
+
+export function validatePixForm(data) {
+  const errors = {};
+  if (!data.name.trim()) errors.name = 'Informe o nome do recebedor.';
+  if (!data.city.trim()) errors.city = 'Informe a cidade do recebedor.';
+  if (!data.key.trim() || !validateKey(data.keyType, data.key)) {
+    errors.key = data.keyType === 'phone' ? 'Digite um celular válido com DDD.' : 'Digite uma chave Pix válida.';
+  }
+  const value = String(data.amount || '').replace(',', '.');
+  if (value && (!/^\d+(\.\d{1,2})?$/.test(value) || Number(value) <= 0)) errors.amount = 'Informe um valor maior que zero.';
+  if (data.txid && !/^[A-Za-z0-9]{1,25}$/.test(data.txid)) errors.txid = 'Use até 25 letras ou números.';
+  return errors;
+}
