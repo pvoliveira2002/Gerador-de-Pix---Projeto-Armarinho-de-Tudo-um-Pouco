@@ -7,7 +7,7 @@ const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
 
 describe('navegação da fase 1', () => {
   it('expõe as quatro etapas na ordem correta', () => {
-    const labels = ['Dados', 'Modelo', 'Personalizar', 'Exportar'];
+    const labels = ['Dados', 'Modelo', 'Tamanho', 'Personalizar'];
     let previous = -1;
     for (const label of labels) {
       const current = template.indexOf(`<b>${label}</b>`);

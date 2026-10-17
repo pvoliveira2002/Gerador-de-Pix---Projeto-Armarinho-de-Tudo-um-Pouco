@@ -15,12 +15,13 @@ export function isValidCpf(value) {
 }
 
 export function isValidCnpj(value) {
-  const cnpj = onlyDigits(value);
-  if (cnpj.length !== 14 || repeated(cnpj)) return false;
+  const cnpj = String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  if (!/^[A-Z0-9]{12}\d{2}$/.test(cnpj) || repeated(cnpj)) return false;
+  const charValue = (character) => character.charCodeAt(0) - 48;
   const calc = (base) => {
     let weight = base.length - 7;
     const sum = [...base].reduce((total, n) => {
-      const result = total + Number(n) * weight--;
+      const result = total + charValue(n) * weight--;
       if (weight < 2) weight = 9;
       return result;
     }, 0);
@@ -34,10 +35,21 @@ export function validateKey(type, value) {
   const key = normalizeKey(type, value);
   if (type === 'cpf') return isValidCpf(key);
   if (type === 'cnpj') return isValidCnpj(key);
-  if (type === 'phone') return /^\+55\d{10,11}$/.test(key);
-  if (type === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key) && key.length <= 77;
-  if (type === 'random') return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key);
+  if (type === 'phone') return /^\+[1-9]\d{1,14}$/.test(key);
+  if (type === 'email') return /^[a-z0-9.!#$'*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/.test(key) && key.length <= 77;
+  if (type === 'random') return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
   return false;
+}
+
+export function detectPixKeyType(value) {
+  const raw = String(value || '').trim();
+  const digits = onlyDigits(raw);
+  if (raw.includes('@')) return 'email';
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw)) return 'random';
+  if (isValidCpf(raw)) return 'cpf';
+  if (digits.length === 14 || /^[A-Za-z0-9.\/-]{14,18}$/.test(raw) && /[A-Za-z]/.test(raw)) return 'cnpj';
+  if (validateKey('phone', raw)) return 'phone';
+  return null;
 }
 
 export function validatePixForm(data) {
