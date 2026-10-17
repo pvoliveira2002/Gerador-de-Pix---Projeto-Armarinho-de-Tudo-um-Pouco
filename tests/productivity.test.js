@@ -38,6 +38,8 @@ describe('fluxo de produtividade', () => {
     expect(template).toContain('id="quick-mode" checked hidden');
     expect(template).toContain('class="btn primary generate-pix-button"');
     expect(source).toContain('setQuickMode(saved.quickMode !== false)');
+    expect(source).toContain("elements.city.closest('label').hidden = enabled && Boolean(businessProfile.city)");
+    expect(source).toContain("applyBusinessDefaults(); setQuickMode($('#quick-mode').checked)");
   });
 
   it('resume a produção e agrupa os formatos de download', () => {

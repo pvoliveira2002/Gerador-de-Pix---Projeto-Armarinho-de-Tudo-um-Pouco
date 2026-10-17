@@ -413,12 +413,12 @@ function openBusinessSettings() {
 }
 $('#business-settings').addEventListener('click', openBusinessSettings);
 $('#cancel-business').addEventListener('click', () => { $('#business-dialog').hidden = true; });
-$('#clear-business').addEventListener('click', () => { localStorage.removeItem(PROFILE_KEY); businessProfile = { name: '', bank: '', city: '', primary: '#0a7a41', secondary: '#f4cc12', logo: '', templateId: 'simple', sizePreset: '10x15' }; $('#business-form').reset(); $('#profile-logo-preview').textContent = 'LOJA'; toast('Perfil restaurado.'); });
+$('#clear-business').addEventListener('click', () => { localStorage.removeItem(PROFILE_KEY); businessProfile = { name: '', bank: '', city: '', primary: '#0a7a41', secondary: '#f4cc12', logo: '', templateId: 'simple', sizePreset: '10x15' }; $('#business-form').reset(); $('#profile-logo-preview').textContent = 'LOJA'; setQuickMode($('#quick-mode').checked); toast('Perfil restaurado.'); });
 $('#business-form').addEventListener('submit', async (event) => {
   event.preventDefault(); const data = Object.fromEntries(new FormData(event.currentTarget)); const file = event.currentTarget.elements.logo.files[0];
   if (file && file.size > 2 * 1024 * 1024) return toast('Use uma logo de até 2 MB.');
   if (file) data.logo = await new Promise((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.readAsDataURL(file); }); else data.logo = businessProfile.logo;
-  businessProfile = { ...businessProfile, ...data }; writeLocal(PROFILE_KEY, businessProfile); $('#business-dialog').hidden = true; applyBusinessDefaults();
+  businessProfile = { ...businessProfile, ...data }; writeLocal(PROFILE_KEY, businessProfile); $('#business-dialog').hidden = true; applyBusinessDefaults(); setQuickMode($('#quick-mode').checked);
   $('#primary-color').value = businessProfile.primary; $('#secondary-color').value = businessProfile.secondary; $('#primary-color').dispatchEvent(new Event('input')); $('#secondary-color').dispatchEvent(new Event('input'));
   if (businessProfile.logo) { const logo = $('#plate').querySelector('.logo-slot'); logo.innerHTML = `<img src="${businessProfile.logo}" alt="Logo" />`; logo.hidden = false; refreshPaperPreview(); }
   const preset = CARD_SIZE_PRESETS.find((item) => item.id === businessProfile.sizePreset);
