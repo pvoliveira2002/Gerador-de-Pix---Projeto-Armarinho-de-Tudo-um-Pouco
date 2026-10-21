@@ -146,9 +146,9 @@ function getA4Layout() {
 
 function getOutputSettings() { return { ...printSettings, cutLineSettings: { ...cutLineSettings } }; }
 
-function updateCardCutLinePreview(widthMm) {
+function updateCardCutLinePreview(widthMm, fullPage = false) {
   const plate = $('#plate');
-  plate.classList.toggle('cut-line-enabled', cutLineSettings.enabled);
+  plate.classList.toggle('cut-line-enabled', cutLineSettings.enabled && !fullPage);
   plate.style.setProperty('--cut-line-style', cutLineSettings.style);
   plate.style.setProperty('--cut-line-color', cutLineSettings.color);
   plate.style.setProperty('--cut-line-offset-px', `${Math.max(4, cutLineSettings.offsetMm / widthMm * 390)}px`);
@@ -161,7 +161,7 @@ function refreshPaperPreview() {
   $('#size-error').textContent = error;
   const physicalItem = layout.positions[0] || calculateCardPosition(printSettings);
   $('#physical-summary').querySelector('strong').textContent = `${physicalItem.widthMm.toLocaleString('pt-BR')} × ${physicalItem.heightMm.toLocaleString('pt-BR')} mm`;
-  updateCardCutLinePreview(physicalItem.widthMm);
+  updateCardCutLinePreview(physicalItem.widthMm, layout.fullPage);
   $('#auto-orientation-result').textContent = `${printSettings.orientation === 'auto' ? 'Orientação automática' : 'Orientação'}: ${physicalItem.widthMm > physicalItem.heightMm ? 'Paisagem' : 'Retrato'}`;
   const layer = $('#paper-layout-layer');
   layer.replaceChildren();
@@ -175,13 +175,13 @@ function refreshPaperPreview() {
     cardClone.style.setProperty('--paper-rotation', `${item.rotation || 0}deg`);
     slot.append(cardClone);
     layer.append(slot);
-    if (cutLineSettings.enabled) {
+    if (cutLineSettings.enabled && !layout.fullPage) {
       const cutLine = document.createElement('div');
       cutLine.className = 'preview-cut-line';
       Object.assign(cutLine.style, { left: `${item.cutLineXmm / paper.widthMm * 100}%`, top: `${item.cutLineYmm / paper.heightMm * 100}%`, width: `${item.cutLineWidthMm / paper.widthMm * 100}%`, height: `${item.cutLineHeightMm / paper.heightMm * 100}%`, borderStyle: cutLineSettings.style, borderColor: cutLineSettings.color });
       layer.append(cutLine);
     }
-    if (printSettings.showCropMarks) {
+    if (printSettings.showCropMarks && !layout.fullPage) {
       const marks = document.createElement('div');
       marks.className = 'preview-crop-marks';
       const markBox = cutLineSettings.enabled ? { left: item.cutLineXmm / paper.widthMm * 100, top: item.cutLineYmm / paper.heightMm * 100, width: item.cutLineWidthMm / paper.widthMm * 100, height: item.cutLineHeightMm / paper.heightMm * 100 } : placement;
@@ -198,7 +198,7 @@ function refreshPaperPreview() {
   });
   const distribution = layout.pages.map((page) => `Folha ${page.pageNumber}: ${page.count}`).join(' • ');
   const copyLabel = layout.quantity === 1 ? '1 cópia' : `${layout.quantity} cópias`;
-  const cutLabel = cutLineSettings.enabled ? `Linha ${cutLineSettings.offsetMm.toLocaleString('pt-BR')} mm` : 'Sem linha de recorte';
+  const cutLabel = layout.fullPage ? 'Página inteira' : cutLineSettings.enabled ? `Linha ${cutLineSettings.offsetMm.toLocaleString('pt-BR')} mm` : 'Sem linha de recorte';
   $('#operational-summary').innerHTML = `<span>${(physicalItem.widthMm / 10).toLocaleString('pt-BR')} × ${(physicalItem.heightMm / 10).toLocaleString('pt-BR')} cm</span><i></i><span>${copyLabel}</span><i></i><span>A4</span><i></i><span>${cutLabel}</span>`;
   $('#layout-result').querySelector('strong').textContent = printSettings.quantityMode === 'fill' ? `Máximo: ${layout.itemsPerPage} cópias` : `${copyLabel} • ${layout.pageCount} ${layout.pageCount === 1 ? 'folha A4' : 'folhas A4'}`;
   $('#layout-result').querySelector('small').textContent = `${distribution || 'O tamanho não cabe na folha'}${layout.orientationUsed === 'rotated' ? ' • Placas giradas para melhor aproveitamento' : ''}`;

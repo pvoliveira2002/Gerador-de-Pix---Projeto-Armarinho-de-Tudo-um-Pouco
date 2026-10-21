@@ -43,6 +43,13 @@ describe('distribuição automática na A4', () => {
     expect(result.pageCount).toBe(1);
   });
 
+  it('usa uma placa A4 como página inteira sem margem nem recorte externo', () => {
+    const result = calculateLayoutFromPrintSettings({ ...DEFAULT_PRINT_SETTINGS, cardWidthMm: 210, cardHeightMm: 297, quantityMode: 'fill', cutLineSettings: { enabled: true, offsetMm: 5 } }, PAPER_SIZES.a4);
+    expect(result.fullPage).toBe(true);
+    expect(result.itemsPerPage).toBe(1);
+    expect(result.positions[0]).toMatchObject({ xMm: 0, yMm: 0, widthMm: 210, heightMm: 297 });
+  });
+
   it.each([3, 5, 10])('respeita gap de %s mm sem ultrapassar a área útil', (gapMm) => {
     const result = layout({ cardWidthMm: 70, cardHeightMm: 100, quantity: 'fill', gapMm });
     for (const position of result.positions) {

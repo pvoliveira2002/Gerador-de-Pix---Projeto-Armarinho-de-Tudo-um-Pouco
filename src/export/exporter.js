@@ -69,7 +69,8 @@ async function renderStandaloneCard(element, settings, dpi = PRINT_DPI) {
   const position = calculateCardPosition(settings);
   const art = await renderCardAtPrintSize(element, position.widthMm, position.heightMm, dpi);
   const cut = settings.cutLineSettings;
-  if (!cut?.enabled) return { canvas: art, widthMm: position.widthMm, heightMm: position.heightMm };
+  const fullPage = (position.widthMm === 210 && position.heightMm === 297) || (position.widthMm === 297 && position.heightMm === 210);
+  if (!cut?.enabled || fullPage) return { canvas: art, widthMm: position.widthMm, heightMm: position.heightMm };
   const offsetPx = mmToPx(cut.offsetMm, dpi);
   const canvas = document.createElement('canvas');
   canvas.width = art.width + offsetPx * 2;
@@ -139,9 +140,9 @@ export async function createA4Pdf(element, settings) {
     if (pageIndex > 0) pdf.addPage([paper.widthMm, paper.heightMm], 'portrait');
     page.positions.forEach((position) => {
       pdf.addImage(image, 'PNG', position.xMm, position.yMm, position.widthMm, position.heightMm, undefined, 'FAST');
-      if (settings.cutLineSettings?.enabled) addCutLine(pdf, position, settings.cutLineSettings);
+      if (settings.cutLineSettings?.enabled && !layout.fullPage) addCutLine(pdf, position, settings.cutLineSettings);
       const markPosition = settings.cutLineSettings?.enabled ? { ...position, xMm: position.cutLineXmm, yMm: position.cutLineYmm, widthMm: position.cutLineWidthMm, heightMm: position.cutLineHeightMm } : position;
-      if (settings.showCropMarks) addCropMarks(pdf, markPosition, settings.gapMm);
+      if (settings.showCropMarks && !layout.fullPage) addCropMarks(pdf, markPosition, settings.gapMm);
     });
   });
   return pdf;

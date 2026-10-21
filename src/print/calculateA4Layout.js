@@ -75,6 +75,8 @@ export function calculateLayoutFromPrintSettings(settings, paper = { widthMm: 21
   const automatic = settings.orientation === 'auto';
   if (settings.orientation === 'portrait') [widthMm, heightMm] = [Math.min(widthMm, heightMm), Math.max(widthMm, heightMm)];
   if (settings.orientation === 'landscape') [widthMm, heightMm] = [Math.max(widthMm, heightMm), Math.min(widthMm, heightMm)];
-  const cutLineOffsetMm = settings.cutLineSettings?.enabled ? settings.cutLineSettings.offsetMm : 0;
-  return calculateA4Layout({ paperWidthMm: paper.widthMm, paperHeightMm: paper.heightMm, cardWidthMm: widthMm, cardHeightMm: heightMm, marginMm: settings.marginMm, gapMm: settings.gapMm, quantity: settings.quantityMode === 'fill' ? 'fill' : settings.quantity, allowRotation: automatic, cutLineOffsetMm });
+  const fullPage = (widthMm === paper.widthMm && heightMm === paper.heightMm) || (widthMm === paper.heightMm && heightMm === paper.widthMm);
+  const cutLineOffsetMm = !fullPage && settings.cutLineSettings?.enabled ? settings.cutLineSettings.offsetMm : 0;
+  const result = calculateA4Layout({ paperWidthMm: paper.widthMm, paperHeightMm: paper.heightMm, cardWidthMm: widthMm, cardHeightMm: heightMm, marginMm: fullPage ? 0 : settings.marginMm, gapMm: settings.gapMm, quantity: settings.quantityMode === 'fill' ? 'fill' : settings.quantity, allowRotation: automatic, cutLineOffsetMm });
+  return { ...result, fullPage };
 }

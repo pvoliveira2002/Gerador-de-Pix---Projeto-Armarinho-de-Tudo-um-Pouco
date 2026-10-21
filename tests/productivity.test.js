@@ -46,7 +46,7 @@ describe('fluxo de produtividade', () => {
     expect(template).toContain('id="operational-summary"');
     expect(template).toContain('class="download-menu unavailable"');
     expect(template).toContain('Baixar <span>▾</span>');
-    expect(source).toContain("const cutLabel = cutLineSettings.enabled");
+    expect(source).toContain("layout.fullPage ? 'Página inteira'");
   });
 
   it('oferece preview ampliado e perfil com padrões de produção', () => {

@@ -11,6 +11,7 @@ export const CARD_SIZE_PRESETS = [
   { id: '13x18', label: '13 × 18 cm', widthMm: 130, heightMm: 180 },
   { id: '15x20', label: '15 × 20 cm', widthMm: 150, heightMm: 200 },
   { id: 'a5', label: 'A5 — 14,8 × 21 cm', widthMm: 148, heightMm: 210 },
+  { id: 'a4', label: 'A4 — 21 × 29,7 cm', widthMm: 210, heightMm: 297 },
   { id: 'custom', label: 'Personalizado', widthMm: null, heightMm: null },
 ];
 
@@ -60,6 +61,7 @@ export function validatePrintSettings(settings) {
   const height = Number(settings.cardHeightMm);
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return 'Informe largura e altura maiores que zero.';
   if (width > 210 || height > 297) return 'O tamanho informado é maior que uma folha A4.';
+  if ((width === 210 && height === 297) || (width === 297 && height === 210)) return '';
   const oriented = orientCard(width, height, settings.orientation, PAPER_SIZES.a4, settings.marginMm);
   if (!fitsOnPage({ ...oriented, marginMm: settings.marginMm }, PAPER_SIZES.a4)) return 'O tamanho escolhido não cabe na folha A4 com a margem atual.';
   return '';
