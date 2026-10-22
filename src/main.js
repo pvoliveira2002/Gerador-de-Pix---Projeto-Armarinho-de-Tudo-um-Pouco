@@ -1,4 +1,5 @@
 import './styles.css';
+import './template-collection.css';
 import QRCode from 'qrcode';
 import { appTemplate } from './ui/template.js';
 import { generatePixPayload } from './pix/payload.js';
@@ -13,6 +14,11 @@ import { calculateLayoutFromPrintSettings } from './print/calculateA4Layout.js';
 
 document.querySelector('#app').innerHTML = appTemplate();
 const $ = (selector) => document.querySelector(selector);
+const profileTemplateSelect = $('#business-form').elements.templateId;
+TEMPLATE_CONFIGS.forEach((template) => {
+  if (profileTemplateSelect.querySelector(`option[value="${template.id}"]`)) return;
+  const option = document.createElement('option'); option.value = template.id; option.textContent = template.name; profileTemplateSelect.append(option);
+});
 let currentPayload = '';
 const pixData = { name: '', displayName: '', bank: '', key: '', keyType: '', amount: '' };
 const qrState = { originalQrImage: null, croppedQrImage: null, activeQrCode: null };

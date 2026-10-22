@@ -8,8 +8,8 @@ const main = readFileSync(new URL('../src/main.js', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
 
 describe('galeria reutilizável de modelos', () => {
-  it('define seis modelos completos e um tema para cada um', () => {
-    expect(TEMPLATE_CONFIGS).toHaveLength(6);
+  it('define a coleção de modelos completos e um tema para cada um', () => {
+    expect(TEMPLATE_CONFIGS).toHaveLength(14);
     for (const template of TEMPLATE_CONFIGS) {
       expect(template).toMatchObject({ id: expect.any(String), name: expect.any(String), description: expect.any(String), layout: expect.any(String), qrSize: expect.any(Number), informationOrder: expect.any(Array) });
       expect(THEME_CONFIGS[template.theme]).toBeDefined();

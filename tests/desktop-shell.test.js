@@ -20,9 +20,9 @@ describe('shell desktop sem scroll global', () => {
     expect(css).toContain('.preview-actions{flex:0 0 auto');
   });
 
-  it('mostra seis modelos em grade compacta', () => {
+  it('mostra a coleção de modelos em grade compacta', () => {
     const models = [...templateConfigSource.matchAll(/id: '([^']+)'/g)].map((match) => match[1]);
-    expect(models).toEqual(['simple', 'modern', 'commercial', 'green', 'premium', 'accessible']);
+    expect(models).toEqual(['simple', 'modern', 'commercial', 'green', 'premium', 'accessible', 'blue-wave', 'royal', 'turquoise', 'blush', 'gold', 'neon', 'geometric', 'night-wave']);
     expect(css).toContain('.template-gallery{display:grid;grid-template-columns:repeat(3');
   });
 
